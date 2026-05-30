@@ -43,8 +43,7 @@ def pick_topic():
 
 def slugify(title):
     base = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-") or "article"
-    return datetime.date.today().strftime("%Y%m%d") + "-" + base[:40]
-
+    return datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + base[:40]
 
 def call_anthropic(topic):
     key = os.environ["ANTHROPIC_API_KEY"]
@@ -158,6 +157,7 @@ def main():
                 posts = json.load(f)
         except Exception:
             posts = []
+    posts = [p for p in posts if p.get("slug") != slug]
     posts.insert(0, {"date": date, "slug": slug, "category": category, "title": title, "description": desc})
     with open(INDEX_JSON, "w", encoding="utf-8") as f:
         json.dump(posts, f, ensure_ascii=False, indent=2)
