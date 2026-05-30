@@ -16,8 +16,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BLOG_DIR = os.path.join(ROOT, "blog")
 INDEX_JSON = os.path.join(BLOG_DIR, "index.json")
 SITEMAP = os.path.join(ROOT, "sitemap.xml")
-MODEL = "claude-3-5-sonnet-20241022"
-
+MODEL = "claude-haiku-4-5-20251001"
 TOPICS = [
     "宮古島のホテル客室バースデーサプライズ｜バルーン装飾の事例とコツ",
     "宮古島でのプロポーズをバルーンで演出する方法",
