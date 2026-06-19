@@ -1,2 +1,3 @@
-# daysballoon-miyakojima-site
-DAYSBalloon宮古島 公式サイト
+# daysballoon-ishigaki-site
+
+DAYSBalloon石垣島 公式サイト
