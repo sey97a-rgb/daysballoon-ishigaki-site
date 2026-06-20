@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""DAYSBalloon 宮古島 自動ブログ記事生成スクリプト
+"""DAYSBalloon 石垣島 自動ブログ記事生成スクリプト
 - Anthropic API で SEO 記事を 1 本生成
 - blog/<slug>.html を出力 / blog/index.json を更新 / sitemap.xml を再生成
 環境変数: ANTHROPIC_API_KEY が必須
@@ -11,19 +11,28 @@ import json
 import datetime
 import urllib.request
 
-SITE = "https://daysballoon-miyakojima.com"
+SITE = "https://daysballoon-ishigaki.com"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BLOG_DIR = os.path.join(ROOT, "blog")
 INDEX_JSON = os.path.join(BLOG_DIR, "index.json")
 SITEMAP = os.path.join(ROOT, "sitemap.xml")
 MODEL = "claude-haiku-4-5-20251001"
 TOPICS = [
-    "宮古島のホテル客室バースデーサプライズ｜バルーン装飾の事例とコツ",
-    "宮古島でのプロポーズをバルーンで演出する方法",
-    "宮古島の結婚記念日サプライズ｜バルーン装飾アイデア集",
-    "宮古島リゾートウェディングのバルーン装飾の選び方",
-    "宮古島の主要ホテルで叶えるサプライズバルーン演出",
-    "宮古島の誕生日サプライズを成功させるバルーン装飾のポイント",
+    "石垣島の主要リゾートホテルで叶えるサプライズバルーン演出",
+    "石垣島でのプロポーズをバルーンで演出する方法",
+    "石垣島の結婚記念日サプライズ｜バルーン装飾アイデア集",
+    "石垣島のホテル客室バースデーサプライズ｜事例とコツ",
+    "石垣島の誕生日サプライズを成功させるバルーン装飾のポイント",
+    "石垣島リゾートウェディングのバルーン装飾の選び方",
+    "川平湾を望むロケーションでのバルーンフォト演出アイデア",
+    "石垣島のサンセットビーチで楽しむバルーンサプライズ",
+    "女子旅で盛り上がる石垣島バルーンデコレーション活用術",
+    "石垣島の星空とバルーンで作るロマンチックな夜の演出",
+    "子どもの誕生日を石垣島で祝うバルーン装飾アイデア",
+    "石垣島旅行の記念日を彩るバルーンブーケの魅力",
+    "八重山の海をテーマにしたバルーンカラーコーディネート",
+    "石垣島のレストラン・カフェでのサプライズバルーン持ち込み術",
+    "プロポーズを成功させる石垣島の絶景スポット×バルーン演出",
 ]
 
 
@@ -38,7 +47,20 @@ def count_posts():
 
 
 def pick_topic():
-    return TOPICS[count_posts() % len(TOPICS)]
+    idx = count_posts() % len(TOPICS)
+    topic = TOPICS[idx]
+    last = None
+    if os.path.exists(INDEX_JSON):
+        try:
+            with open(INDEX_JSON, encoding="utf-8") as f:
+                posts = json.load(f)
+            if posts:
+                last = posts[0].get("title")
+        except Exception:
+            last = None
+    if last and topic == last:
+        topic = TOPICS[(idx + 1) % len(TOPICS)]
+    return topic
 
 
 def slugify(title):
@@ -48,10 +70,10 @@ def slugify(title):
 def call_anthropic(topic):
     key = os.environ["ANTHROPIC_API_KEY"]
     prompt = (
-        "あなたは宮古島のバルーン装飾・サプライズ演出専門店『DAYSBalloon』のブログ編集者です。"
+        "あなたは石垣島のバルーン装飾・サプライズ演出専門店『DAYSBalloon』のブログ編集者です。"
         "以下のテーマで、SEOを意識した日本語ブログ記事をHTML本文だけ"
         "（h2,h3,p,ul,liのみ使用、htmlやbodyタグは不要）で800〜1200字程度で書いてください。"
-        "『バルーン 宮古島』『サプライズ 宮古島』などの語句を自然に含め、"
+        "『バルーン 石垣島』『サプライズ 石垣島』『石垣島 プロポーズ』などの語句を自然に含め、川平湾・玉取崎展望台・米原ビーチ・サンセットビーチなどの石垣島の代表スポットや、ANAインターコンチネンタル石垣リゾート・フサキビーチリゾートなどの主要リゾートに触れても構いません。"
         "最後にLINE相談を促す一文を入れてください。テーマ: " + topic
     )
     body = {"model": MODEL, "max_tokens": 2000, "messages": [{"role": "user", "content": prompt}]}
@@ -72,7 +94,7 @@ def render_article(title, desc, slug, date, category, content):
         '<!DOCTYPE html>\n<html lang="ja">\n<head>\n'
         '<meta charset="UTF-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
-        '<title>' + title + '｜DAYSBalloon 宮古島</title>\n'
+        '<title>' + title + '｜DAYSBalloon 石垣島</title>\n'
         '<meta name="description" content="' + desc + '">\n'
         '<link rel="canonical" href="' + SITE + '/blog/' + slug + '.html">\n'
         '<meta name="robots" content="index, follow">\n'
@@ -86,8 +108,8 @@ def render_article(title, desc, slug, date, category, content):
         '<script type="application/ld+json">'
         '{"@context":"https://schema.org","@type":"BlogPosting","headline":"' + title + '",'
         '"datePublished":"' + date + '","image":"' + SITE + '/photo_019.jpg",'
-        '"author":{"@type":"Organization","name":"DAYSBalloon 宮古島"},'
-        '"publisher":{"@type":"Organization","name":"DAYSBalloon 宮古島"},'
+        '"author":{"@type":"Organization","name":"DAYSBalloon 石垣島"},'
+        '"publisher":{"@type":"Organization","name":"DAYSBalloon 石垣島"},'
         '"mainEntityOfPage":"' + SITE + '/blog/' + slug + '.html"}'
         '</script>\n'
     )
@@ -118,7 +140,7 @@ def render_article(title, desc, slug, date, category, content):
         '<div class="meta">' + category + '｜' + date + '</div>\n'
         '<h1>' + title + '</h1>\n' + content + '\n</article>\n'
         '<div class="back"><a href="/blog/">← 記事一覧へ戻る</a></div>\n</main>\n'
-        '<footer class="site-footer"><div class="wrap">© DAYSBalloon 宮古島</div></footer>\n'
+        '<footer class="site-footer"><div class="wrap">© DAYSBalloon 石垣島</div></footer>\n'
         '</body>\n</html>\n'
     )
     return head + ld + style + bodyhtml
@@ -142,7 +164,7 @@ def main():
     title = pick_topic()
     content = call_anthropic(title)
     m = re.search(r"<p>(.*?)</p>", content, re.S)
-    desc = re.sub(r"<[^>]+>", "", m.group(1)) if m else "宮古島のバルーン装飾・サプライズ演出の情報をお届けします。"
+    desc = re.sub(r"<[^>]+>", "", m.group(1)) if m else "石垣島のバルーン装飾・サプライズ演出の情報をお届けします。"
     desc = desc.strip().replace('"', "'")[:110]
     date = datetime.date.today().strftime("%Y-%m-%d")
     slug = slugify(title)
