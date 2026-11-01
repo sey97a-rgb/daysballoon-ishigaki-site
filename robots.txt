@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://daysballoon-miyakojima.com/sitemap.xml
+Sitemap: https://daysballoon-ishigaki.com/sitemap.xml
